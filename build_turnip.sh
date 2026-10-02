@@ -43,8 +43,9 @@ prepare_workdir() {
         log "Fetching pinned Mesa at $MESA_COMMIT..."
         git -C "$WORKDIR/mesa" fetch -q --depth=1 origin "$MESA_COMMIT"
     else
-        log "Fetching Mesa main..."
-        git -C "$WORKDIR/mesa" fetch -q --depth=1 origin refs/heads/main
+        log "Fetching Mesa Merge Request !44838..."
+        # This explicitly grabs the head branch of MR 44838 from GitLab
+        git -C "$WORKDIR/mesa" fetch -q origin merge-requests/44838/head
     fi
     git -C "$WORKDIR/mesa" checkout -q --detach FETCH_HEAD
 }
