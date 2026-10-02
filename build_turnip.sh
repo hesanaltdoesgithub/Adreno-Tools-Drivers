@@ -29,8 +29,12 @@ check_deps() {
 prepare_workdir() {
     mkdir -p "$WORKDIR"
     if [ ! -d "$WORKDIR/$NDKVER" ]; then
-        log "Downloading Android NDK r29..."
-        curl -sL "https://google.com{NDKVER}-linux.zip" -o "$WORKDIR/${NDKVER}-linux.zip"
+        log "Downloading Android NDK r29 (with failover retries)..."
+        # Adds 5 robust download retry attempts on network failures
+        curl --connect-timeout 15 --retry 5 --retry-delay 5 -sL \
+            "https://google.com{NDKVER}-linux.zip" \
+            -o "$WORKDIR/${NDKVER}-linux.zip"
+        
         unzip -q "$WORKDIR/${NDKVER}-linux.zip" -d "$WORKDIR"
     fi
 
