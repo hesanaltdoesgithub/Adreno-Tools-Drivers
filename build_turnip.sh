@@ -29,12 +29,22 @@ check_deps() {
 prepare_workdir() {
     mkdir -p "$WORKDIR"
     if [ ! -d "$WORKDIR/$NDKVER" ]; then
-        log "Downloading Android NDK r29 (with failover retries)..."
-        # Adds 5 robust download retry attempts on network failures
-        curl --connect-timeout 15 --retry 5 --retry-delay 5 -sL \
-            "https://google.com{NDKVER}-linux.zip" \
-            -o "$WORKDIR/${NDKVER}-linux.zip"
+        log "Downloading Android NDK r29 (with multi-host mirror failover)..."
         
+        # Primary URL from standard repository endpoint
+        URL1="https://dl.google.com/android/repository/${NDKVER}-linux.zip"
+        # Secondary backup URL from Google's high-capacity GVT1 Delivery Network
+        URL2="http://gvt1.com{NDKVER}-linux.zip"
+
+        log "Attempting Primary Google Download Endpoint..."
+        if ! curl --connect-timeout 20 --retry 3 --retry-delay 5 -sL "$URL1" -o "$WORKDIR/${NDKVER}-linux.zip"; then
+            log "Primary endpoint failed or unreachable (Exit Code 6). Switching to GVT1 Mirror Platform..."
+            curl --connect-timeout 20 --retry 3 --retry-delay 5 -sL "$URL2" -o "$WORKDIR/${NDKVER}-linux.zip" || {
+                die "Both Google primary and mirror network systems returned host resolution failures."
+            }
+        fi
+        
+        log "Decompressing NDK platform files..."
         unzip -q "$WORKDIR/${NDKVER}-linux.zip" -d "$WORKDIR"
     fi
 
