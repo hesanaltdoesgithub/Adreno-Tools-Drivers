@@ -12,10 +12,11 @@ jobs:
     outputs:
       mesa_commit: ${{ steps.mesa.outputs.commit }}
     steps:
-      - name: Resolve Mesa main
+      - name: Resolve Mesa MR 44838
         id: mesa
         run: |
-          COMMIT=$(git ls-remote https://gitlab.freedesktop.org/mesa/mesa.git refs/heads/main | awk '{print $1}')
+          # Fetching the target commit hash directly from the GitLab MR endpoint
+          COMMIT=$(git ls-remote https://gitlab.freedesktop.org/mesa/mesa.git refs/merge-requests/44838/head | awk '{print $1}')
           test -n "$COMMIT"
           echo "commit=$COMMIT" >> "$GITHUB_OUTPUT"
           echo "Mesa commit: $COMMIT"
