@@ -30,7 +30,7 @@ prepare_workdir() {
     mkdir -p "$WORKDIR"
     if [ ! -d "$WORKDIR/$NDKVER" ]; then
         log "Downloading Android NDK r29..."
-        curl -sL "https://dl.google.com/android/repository/${NDKVER}-linux.zip" -o "$WORKDIR/${NDKVER}-linux.zip"
+        curl -sL "https://google.com{NDKVER}-linux.zip" -o "$WORKDIR/${NDKVER}-linux.zip"
         unzip -q "$WORKDIR/${NDKVER}-linux.zip" -d "$WORKDIR"
     fi
 
@@ -40,11 +40,10 @@ prepare_workdir() {
     git -C "$WORKDIR/mesa" remote add origin https://gitlab.freedesktop.org/mesa/mesa.git
 
     if [ -n "$MESA_COMMIT" ]; then
-        log "Fetching pinned Mesa at $MESA_COMMIT..."
+        log "Fetching pinned Mesa commit at $MESA_COMMIT..."
         git -C "$WORKDIR/mesa" fetch -q --depth=1 origin "$MESA_COMMIT"
     else
         log "Fetching Mesa Merge Request !44838..."
-        # This explicitly grabs the head branch of MR 44838 from GitLab
         git -C "$WORKDIR/mesa" fetch -q origin merge-requests/44838/head
     fi
     git -C "$WORKDIR/mesa" checkout -q --detach FETCH_HEAD
